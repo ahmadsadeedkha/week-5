@@ -5,3 +5,10 @@ SELECT *
 FROM tasks 
 WHERE tasks.project_id = 1
 ORDER BY due_date ASC NULLS LAST;
+
+-- ============================================================
+-- Q2 The number of tasks in each status
+-- ============================================================
+SELECT status, count(*) 
+FROM tasks 
+GROUP BY status;
