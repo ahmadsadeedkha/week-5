@@ -1,9 +1,13 @@
+CREATE TYPE task_status AS ENUM ('todo', 'in_progress', 'done');
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50),
-    email VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(100) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE UNIQUE INDEX users_email_lower_idx ON users (LOWER(email));
 
 CREATE TABLE projects (
     id SERIAL PRIMARY KEY,
@@ -23,7 +27,7 @@ CREATE TABLE tasks (
     id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     description TEXT,
-    status TEXT NOT NULL CHECK (status IN ('todo', 'in_progress', 'done')) DEFAULT 'todo',
+    status task_status NOT NULL DEFAULT 'todo',
     priority INT CHECK (priority BETWEEN 1 AND 5) DEFAULT 3,
     project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     assignee_id INT REFERENCES users(id) ON DELETE SET NULL,
