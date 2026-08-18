@@ -10,9 +10,7 @@
 
 ![alt text](Screenshots/run.png)
 
-### Queries
-
-To run queries: psql -U postgres -d cmit-week-5 -f problems.sql
+### Tests
 
 - Select and Insert Verification
 
