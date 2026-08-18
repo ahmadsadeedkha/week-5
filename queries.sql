@@ -12,3 +12,10 @@ ORDER BY due_date ASC NULLS LAST;
 SELECT status, count(*) 
 FROM tasks 
 GROUP BY status;
+
+-- ============================================================
+-- Q3 Users with the number of tasks assigned to them
+-- ============================================================
+SELECT users.name, COUNT(tasks.id)
+FROM users LEFT JOIN tasks ON tasks.assignee_id = users.id
+GROUP BY users.id;
