@@ -92,3 +92,11 @@ FROM tasks
 LEFT JOIN comments ON tasks.id = comments.task_id
 GROUP BY tasks.id
 ORDER BY COUNT(comments.id) DESC;
+
+-- ============================================================
+-- Q10 Project with its members and their roles
+-- ============================================================
+select projects.name, users.name AS member_name, project_members.role
+FROM project_members
+LEFT JOIN users ON project_members.user_id = users.id
+LEFT JOIN projects ON project_members.project_id = projects.id
