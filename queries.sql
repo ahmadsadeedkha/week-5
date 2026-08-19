@@ -20,20 +20,19 @@ GROUP BY status;
 -- Q3 Users with the number of tasks assigned to them
 -- ============================================================
 
-SELECT users.name,
+SELECT users.id,
+       users.name,
        COUNT(tasks.id)
 FROM users
 LEFT JOIN tasks ON tasks.assignee_id = users.id
-GROUP BY users.name;
+GROUP BY users.id,
+         users.name;
 
 -- ============================================================
 -- Q4 All tasks that carry a given tag name
 -- ============================================================
 
-SELECT tasks.title,
-       tasks.description,
-       tasks.due_date,
-       tasks.status
+SELECT tasks.*
 FROM tasks
 JOIN task_tags ON tasks.id = task_tags.task_id
 JOIN tags ON task_tags.tag_id = tags.id
@@ -56,25 +55,27 @@ WHERE due_date < CURRENT_DATE
 -- Q6 Top 3 users by number of tasks 'done'
 -- ============================================================
 
-SELECT users.name,
+SELECT users.id,
+       users.name,
        COUNT(tasks.id) AS done_task_count
 FROM users
 JOIN tasks ON tasks.assignee_id = users.id
 WHERE tasks.status = 'done'
-GROUP BY users.name
-ORDER BY COUNT(tasks.id) DESC
+GROUP BY users.id,
+         users.name
+ORDER BY done_task_count DESC
 LIMIT 3;
 
 -- ============================================================
 -- Q7 Projects that have no tasks
 -- ============================================================
 
-SELECT projects.id,
-       projects.name
+SELECT projects.*
 FROM projects
-WHERE projects.id NOT IN
-        (SELECT DISTINCT project_id
-         FROM tasks);
+WHERE NOT EXISTS
+        (SELECT 1
+         FROM tasks
+         WHERE tasks.project_id = projects.id);
 
 -- ============================================================
 -- Q8 Average number of tags per task
@@ -99,12 +100,14 @@ ORDER BY COUNT(comments.id) DESC;
 -- Q10 Project with its members and their roles
 -- ============================================================
 
-SELECT projects.name,
+SELECT projects.id AS project_id,
+       projects.name AS project_name,
        users.name AS member_name,
        project_members.role
-FROM project_members
+FROM projects
+LEFT JOIN project_members ON project_members.project_id = projects.id
 LEFT JOIN users ON project_members.user_id = users.id
-LEFT JOIN projects ON project_members.project_id = projects.id;
+ORDER BY projects.id;
 
 -- ============================================================
 -- X1 updated Q6
@@ -113,7 +116,7 @@ LEFT JOIN projects ON project_members.project_id = projects.id;
     (SELECT users.name,
             COUNT(tasks.id) AS done_task_count,
             RANK() OVER (
-                         ORDER BY COUNT(tasks.id) DESC) AS Rank
+                         ORDER BY COUNT(tasks.id) DESC) AS user_Rank
      FROM users
      JOIN tasks ON tasks.assignee_id = users.id
      WHERE tasks.status = 'done'
@@ -122,13 +125,14 @@ LEFT JOIN projects ON project_members.project_id = projects.id;
 SELECT name,
        done_task_count
 FROM ranked_users
-WHERE Rank <= 3;
+WHERE user_Rank <= 3;
 
 -- ============================================================
 -- X2 updated Q10
 -- ============================================================
 
-SELECT projects.name,
+SELECT projects.id AS project_id,
+       projects.name AS project_name,
        COUNT(*) FILTER (
                         WHERE project_members.role = 'owner') AS owners,
        COUNT(*) FILTER (
@@ -140,4 +144,5 @@ SELECT projects.name,
 FROM projects
 LEFT JOIN project_members ON projects.id = project_members.project_id
 GROUP BY projects.id,
-         projects.name;
+         projects.name
+ORDER BY projects.id;
