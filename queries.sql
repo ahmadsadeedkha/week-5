@@ -83,3 +83,12 @@ WHERE projects.id NOT IN
 select CAST(COUNT (task_tags.task_id) AS FLOAT) / COUNT (DISTINCT tasks.id) AS average_tags_per_task
 FROM tasks
 LEFT JOIN task_tags ON tasks.id = task_tags.task_id
+
+-- ============================================================
+-- Q9 Number of comments per task
+-- ============================================================
+select tasks.id AS task_id, COUNT(comments.id) AS comment_count 
+FROM tasks
+LEFT JOIN comments ON tasks.id = comments.task_id
+GROUP BY tasks.id
+ORDER BY COUNT(comments.id) DESC;
