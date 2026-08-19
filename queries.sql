@@ -80,14 +80,16 @@ WHERE projects.id NOT IN
 -- Q8 Average number of tags per task
 -- ============================================================
 
-select CAST(COUNT (task_tags.task_id) AS FLOAT) / COUNT (DISTINCT tasks.id) AS average_tags_per_task
+SELECT CAST(COUNT (task_tags.task_id) AS FLOAT) / COUNT (DISTINCT tasks.id) AS average_tags_per_task
 FROM tasks
-LEFT JOIN task_tags ON tasks.id = task_tags.task_id
+LEFT JOIN task_tags ON tasks.id = task_tags.task_id;
 
 -- ============================================================
 -- Q9 Number of comments per task
 -- ============================================================
-select tasks.id AS task_id, COUNT(comments.id) AS comment_count 
+
+SELECT tasks.id AS task_id,
+       COUNT(comments.id) AS comment_count
 FROM tasks
 LEFT JOIN comments ON tasks.id = comments.task_id
 GROUP BY tasks.id
@@ -96,7 +98,28 @@ ORDER BY COUNT(comments.id) DESC;
 -- ============================================================
 -- Q10 Project with its members and their roles
 -- ============================================================
-select projects.name, users.name AS member_name, project_members.role
+
+SELECT projects.name,
+       users.name AS member_name,
+       project_members.role
 FROM project_members
 LEFT JOIN users ON project_members.user_id = users.id
-LEFT JOIN projects ON project_members.project_id = projects.id
+LEFT JOIN projects ON project_members.project_id = projects.id;
+
+-- ============================================================
+-- X1 updated Q6
+-- ============================================================
+ WITH ranked_users AS
+    (SELECT users.name,
+            COUNT(tasks.id) AS done_task_count,
+            RANK() OVER (
+                         ORDER BY COUNT(tasks.id) DESC) AS Rank
+     FROM users
+     JOIN tasks ON tasks.assignee_id = users.id
+     WHERE tasks.status = 'done'
+     GROUP BY users.id,
+              users.name)
+SELECT name,
+       done_task_count
+FROM ranked_users
+WHERE Rank <= 3
