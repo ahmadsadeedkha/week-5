@@ -75,3 +75,11 @@ FROM projects
 WHERE projects.id NOT IN
         (SELECT DISTINCT project_id
          FROM tasks);
+
+-- ============================================================
+-- Q8 Average number of tags per task
+-- ============================================================
+
+select CAST(COUNT (task_tags.task_id) AS FLOAT) / COUNT (DISTINCT tasks.id) AS average_tags_per_task
+FROM tasks
+LEFT JOIN task_tags ON tasks.id = task_tags.task_id
