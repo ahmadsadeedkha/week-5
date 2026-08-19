@@ -122,4 +122,22 @@ LEFT JOIN projects ON project_members.project_id = projects.id;
 SELECT name,
        done_task_count
 FROM ranked_users
-WHERE Rank <= 3
+WHERE Rank <= 3;
+
+-- ============================================================
+-- X2 updated Q10
+-- ============================================================
+
+SELECT projects.name,
+       COUNT(*) FILTER (
+                        WHERE project_members.role = 'owner') AS owners,
+       COUNT(*) FILTER (
+                        WHERE project_members.role = 'admin') AS admins,
+       COUNT(*) FILTER (
+                        WHERE project_members.role = 'member') AS members,
+       COUNT(*) FILTER (
+                        WHERE project_members.role = 'viewer') AS viewers
+FROM projects
+LEFT JOIN project_members ON projects.id = project_members.project_id
+GROUP BY projects.id,
+         projects.name;

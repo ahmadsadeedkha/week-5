@@ -12,5 +12,3 @@ VALUES ('Design Contact Page', 'Create Figma', 'done', 1, 1, 4, CURRENT_DATE - I
 Result:
 
 ![alt text](Screenshots/X1.png)
-
-- ### Problem X2
