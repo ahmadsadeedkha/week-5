@@ -18,4 +18,19 @@ GROUP BY status;
 -- ============================================================
 SELECT users.name, COUNT(tasks.id)
 FROM users LEFT JOIN tasks ON tasks.assignee_id = users.id
-GROUP BY users.id;
+GROUP BY users.name;
+
+-- ============================================================
+-- Q4 All tasks that carry a given tag name
+-- ============================================================
+SELECT tasks.title, tasks.description, tasks.due_date, tasks.status
+FROM tasks JOIN task_tags ON tasks.id = task_tags.task_id
+JOIN tags ON task_tags.tag_id = tags.id
+WHERE tags.name = 'urgent';
+
+-- ============================================================
+-- Q5 All overdue tasks
+-- ============================================================
+SELECT tasks.title, tasks.due_date, tasks.status, users.name AS assignee_name
+FROM tasks LEFT JOIN users ON tasks.assignee_id = users.id
+WHERE due_date < CURRENT_DATE AND status <> 'done';
