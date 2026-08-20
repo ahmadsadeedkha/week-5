@@ -35,3 +35,44 @@ WHERE user_id = 4
 
 
 COMMIT;
+
+-- =============================================
+-- C2 Rollback transaction
+-- =============================================
+
+SELECT count(*)
+FROM tasks
+WHERE assignee_id = 5;
+
+
+SELECT count(*)
+FROM project_members
+WHERE user_id = 2
+    AND project_id = 1;
+
+BEGIN;
+
+
+UPDATE tasks
+SET assignee_id = 5
+WHERE assignee_id = 2;
+
+
+DELETE
+FROM project_members
+WHERE user_id = 2
+    AND project_id = 1;
+
+
+ROLLBACK;
+
+
+SELECT count(*)
+FROM tasks
+WHERE assignee_id = 5;
+
+
+SELECT count(*)
+FROM project_members
+WHERE user_id = 2
+    AND project_id = 1;
