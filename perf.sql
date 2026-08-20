@@ -15,3 +15,23 @@ CREATE INDEX ON tasks(assignee_id);
 
 
 CREATE INDEX ON task_tags(tag_id);
+
+-- =============================================
+-- C1 Realistic multi-statement transaction
+-- =============================================
+ BEGIN;
+
+
+UPDATE tasks
+SET assignee_id = 5
+WHERE assignee_id = 4
+    AND project_id = 2;
+
+
+DELETE
+FROM project_members
+WHERE user_id = 4
+    AND project_id = 2;
+
+
+COMMIT;
