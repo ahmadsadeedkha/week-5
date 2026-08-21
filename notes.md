@@ -51,3 +51,33 @@ After
 ![alt text](Screenshots/p2After.png)
 
 What changed: the task_tags side of the join went from Seq Scan on task_tags (cost 1693.26, actual 13.688 ms for that node alone) to Bitmap Heap Scan + Bitmap Index Scan on task_tags_tag_id_idx (cost 845.66, actual 5.541 ms for that node). That's the node that changed and the reasoning is right. Overall query cost dropped 4406.78 → 3561.71, and total execution time dropped 144.006 ms → 129.981 ms.
+
+## X1: Composite Index Before/After EXPLAIN
+
+Before
+
+WHERE project_id = ? AND status = ?
+
+![alt text](Screenshots/x1Before1.png)
+
+WHERE project_id = ?
+
+![alt text](Screenshots/x1Before2.png)
+
+WHERE status = ?
+
+![alt text](Screenshots/x1Before3.png)
+
+After
+
+WHERE project_id = ? AND status = ?
+
+![alt text](Screenshots/x1After1.png)
+
+WHERE project_id = ?
+
+![alt text](Screenshots/x1After2.png)
+
+WHERE status = ?
+
+![alt text](Screenshots/x1After3.png)

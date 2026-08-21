@@ -150,3 +150,41 @@ SELECT tasks.*
 FROM tasks
 JOIN task_tags ON tasks.id = task_tags.task_id
 WHERE task_tags.tag_id = 4;
+
+-- =============================================
+-- X1 Composite Index Before/After EXPLAIN
+-- =============================================
+ EXPLAIN ANALYZE
+SELECT *
+FROM tasks
+WHERE project_id = 1
+    AND status = 'todo';
+
+EXPLAIN ANALYZE
+SELECT *
+FROM tasks
+WHERE project_id = 1;
+
+EXPLAIN ANALYZE
+SELECT *
+FROM tasks
+WHERE status = 'todo';
+
+
+CREATE INDEX ON tasks(project_id, status);
+
+EXPLAIN ANALYZE
+SELECT *
+FROM tasks
+WHERE project_id = 1
+    AND status = 'todo';
+
+EXPLAIN ANALYZE
+SELECT *
+FROM tasks
+WHERE project_id = 1;
+
+EXPLAIN ANALYZE
+SELECT *
+FROM tasks
+WHERE status = 'todo';
