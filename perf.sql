@@ -78,7 +78,7 @@ WHERE user_id = 2
     AND project_id = 1;
 
 -- =============================================
--- C3 EXPLAIN ANALYZE
+-- C3 and X2 EXPLAIN ANALYZE
 -- =============================================
 
 INSERT INTO tasks (title, description, status, priority, project_id, assignee_id, due_date)

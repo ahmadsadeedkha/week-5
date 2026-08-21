@@ -81,3 +81,45 @@ WHERE project_id = ?
 WHERE status = ?
 
 ![alt text](Screenshots/x1After3.png)
+
+## X3: Two transactions read and update the same data (Concurrency Bug: Lost Update Anomaly)
+
+### Why the Value Ended Up as +1 Instead of +2
+
+Under the default READ COMMITTED isolation level, a standard SELECT query reads the last committed snapshot of the data and does not acquire write locks.
+
+When two concurrent transactions run:
+
+1. **Session 1** reads priority (e.g., 10).
+2. **Session 2** reads priority before Session 1 commits, getting the same initial value (10).
+3. **Session 1** updates priority to 10 + 1 = 11 and commits.
+4. **Session 2** updates priority using its previously read value 10 + 1 = 11 and commits.
+
+Session 2's write overwrites Session 1's update without factoring in Session 1's changes, leading to a **lost update**.
+
+---
+
+### The Solution: Row-Level Locking ( FOR UPDATE )
+
+Using SELECT ... FOR UPDATE requests an exclusive lock on the selected row(s). When **Session 2** attempts to execute SELECT ... FOR UPDATE on a row locked by **Session 1**, Session 2 is suspended until Session 1 completes its transaction. Once unblocked, Session 2 reads the freshly updated row value (11) and increments it correctly to 12.
+
+### Execution Order in psql:
+
+**Session 1:**
+
+```sql
+BEGIN;
+SELECT priority FROM tasks WHERE id = 1 FOR UPDATE; -- Returns 10, holds lock
+UPDATE tasks SET priority = 11 WHERE id = 1;
+COMMIT; -- Releases lock
+```
+
+**Session 2:**
+
+```sql
+BEGIN;
+SELECT priority FROM tasks WHERE id = 1 FOR UPDATE; -- Waits for Session 1
+-- (Unblocks after Session 1 commits, returns 11)
+UPDATE tasks SET priority = 12 WHERE id = 1;
+COMMIT;
+```
