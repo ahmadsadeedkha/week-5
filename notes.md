@@ -26,3 +26,28 @@ Ran the same reassign-then-remove shape as C1's transaction, but for a different
 | During transaction (before ROLLBACK) | 7                   | 0                             |
 | After ROLLBACK                       | 3                   | 1                             |
 
+## C3: EXPLAIN ANALYZE
+
+1. Pair 1 — tasks(assignee_id)
+
+Before
+
+![alt text](Screenshots/p1Before.png)
+
+After
+
+![alt text](Screenshots/p1After.png)
+
+What changed: the top-level node went from Seq Scan on tasks to Bitmap Heap Scan on tasks (with a Bitmap Index Scan on tasks_assignee_id_idx feeding it). Planner cost dropped from 2492.20 down to 1603.99, and measured execution time dropped from 25.531 ms to 10.989 ms — more than halved. Both direction and magnitude line up with what you'd expect: same Rows Removed by Filter: 84949 situation before (scanning and discarding ~85% of the table), replaced by an index jump straight to the matching ~15k rows after.
+
+2. Pair 2 — task_tags(tag_id)
+
+Before
+
+![alt text](Screenshots/p2Before.png)
+
+After
+
+![alt text](Screenshots/p2After.png)
+
+What changed: the task_tags side of the join went from Seq Scan on task_tags (cost 1693.26, actual 13.688 ms for that node alone) to Bitmap Heap Scan + Bitmap Index Scan on task_tags_tag_id_idx (cost 845.66, actual 5.541 ms for that node). That's the node that changed and the reasoning is right. Overall query cost dropped 4406.78 → 3561.71, and total execution time dropped 144.006 ms → 129.981 ms.
